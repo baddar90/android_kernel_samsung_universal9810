@@ -1503,6 +1503,16 @@ config SCHED_EMS
 	  and prefer_perf and enhanced prefer_idle that work in conjunction with
 	  SCHEDTUNE.
 
+          If unsure, say N.
+
+config CPUSET_ASSIST
+	bool "CPUSet configuration helper"
+	depends on CPUSETS
+	depends on ANDROID
+	help
+	  This option enables the configuration of default cpusets
+	  parameters from kernel.
+
 	  If unsure, say N.
 
 config DEFAULT_USE_ENERGY_AWARE
