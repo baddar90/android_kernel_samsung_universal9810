@@ -1775,6 +1775,11 @@ static ssize_t cpuset_write_resmask(struct kernfs_open_file *of,
 	struct cpuset *trialcs;
 	int retval = -ENODEV;
 
+#ifndef CONFIG_CPUSET_ASSIST
+	/* Don't call strstrip here because buf is read-only */
+	buf = strstrip(buf);
+#endif
+
 	/*
 	 * CPU or memory hotunplug may leave @cs w/o any execution
 	 * resources, in which case the hotplug code asynchronously updates
@@ -1833,66 +1838,31 @@ out_unlock:
 	return retval ?: nbytes;
 }
 
-static ssize_t cpuset_write_resmask_assist(struct kernfs_open_file *of,
-					   struct cs_target tgt, size_t nbytes,
-					   loff_t off)
-{
-	pr_info("cpuset_assist: setting %s to %s\n", tgt.name, tgt.cpus);
-	return cpuset_write_resmask(of, tgt.cpus, nbytes, off);
-}
-
 static ssize_t cpuset_write_resmask_wrapper(struct kernfs_open_file *of,
 					 char *buf, size_t nbytes, loff_t off)
 {
 #ifdef CONFIG_CPUSET_ASSIST
-	static struct cs_target cs_targets[] = {
-		{ "audio-app",		CONFIG_CPUSET_AUDIO_APP },
-		{ "background",		CONFIG_CPUSET_BG },
-		{ "camera-daemon",	CONFIG_CPUSET_CAMERA },
-		{ "foreground",		CONFIG_CPUSET_FG },
-		{ "restricted",		CONFIG_CPUSET_RESTRICTED },
-		{ "system-background",	CONFIG_CPUSET_SYSTEM_BG },
-		{ "top-app",		CONFIG_CPUSET_TOP_APP },
-	};
-#ifdef CONFIG_UCLAMP_ASSIST
-	static struct uc_target uc_targets[] = {
-		{ "top-app",		"10", "max",	1, 1 },
-		{ "foreground",		"0",  "50",	0, 0 },
-		{ "restricted",		"10", "40",	0, 0 },
-		{ "background",		"20", "max",	0, 0 },
-		{ "system-background",	"0",  "40",	0, 0 },
-	};
-#endif
-	struct cpuset *cs = css_cs(of_css(of));
-	const char *cpuset_cgroup_name = cs->css.cgroup->kn->name;
 	int i;
-#ifdef CONFIG_UCLAMP_ASSIST
-	int j;
-	char _uclamp_value;
-#endif
+	struct cpuset *cs = css_cs(of_css(of));
+	struct c_data {
+		char *c_name;
+		char *c_cpus;
+	};
+	struct c_data c_targets[7] = {
+		/* Silver only cpusets go first */
+		{ "background",			"0-1"},
+		{ "audio-app",			"0-3"},
+		{ "system-background", 		"0-3"},
+		{ "restricted",			"0-3"},
+		{ "top-app",			"0-7"},
+		{ "foreground",			"0-3,6-7"},
+		{ "camera-daemon",		"0-3,6-7"}};
 
 	if (!strcmp(current->comm, "init")) {
-		for (i = 0; i < ARRAY_SIZE(cs_targets); i++) {
-			struct cs_target cs_tgt = cs_targets[i];
-
-			if (!strcmp(cpuset_cgroup_name, cs_tgt.name)) {
-#ifdef CONFIG_UCLAMP_ASSIST
-				for (j = 0; j < ARRAY_SIZE(uc_targets); j++) {
-					struct uc_target uc_tgt = uc_targets[j];
-					if (!strcmp(cpuset_cgroup_name, uc_tgt.name)) {
-						cpu_uclamp_min_write_wrapper(
-							of, strcpy(&_uclamp_value, uc_tgt.uclamp_min), nbytes, off);
-						cpu_uclamp_max_write_wrapper(
-							of, strcpy(&_uclamp_value, uc_tgt.uclamp_max), nbytes, off);
-						cpu_uclamp_ls_write_u64_wrapper(
-							&cs->css, NULL, uc_tgt.uclamp_latency_sensitive);
-						cpu_uclamp_boost_write_u64_wrapper(
-							&cs->css, NULL, uc_tgt.uclamp_boosted);
-						break;
-					}
-				}
-#endif
-				return cpuset_write_resmask_assist(of, cs_tgt, nbytes, off);
+		for (i = 0; i < ARRAY_SIZE(c_targets); i++) {
+			if (!strcmp(cs->css.cgroup->kn->name, c_targets[i].c_name)) {
+				strcpy(buf, c_targets[i].c_cpus);
+				break;
 			}
 		}
 	}
