@@ -498,6 +498,7 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= sysctl_sched_uclamp_handler,
 	},
+<<<<<<< HEAD
 	{
 		.procname	= "sched_util_clamp_min_rt_default",
 		.data		= &sysctl_sched_uclamp_util_min_rt_default,
@@ -505,6 +506,8 @@ static struct ctl_table kern_table[] = {
 		.mode		= 0644,
 		.proc_handler	= sysctl_sched_uclamp_handler,
 	},
+=======
+>>>>>>> d704f2cedc28... UPSTREAM: sched/uclamp: Add system default clamps
 #endif
 #ifdef CONFIG_SCHED_AUTOGROUP
 	{
