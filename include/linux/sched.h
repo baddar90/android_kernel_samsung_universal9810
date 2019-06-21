@@ -1690,12 +1690,16 @@ struct sched_dl_entity {
  * Utilization clamp for a scheduling entity
  * @value:		clamp value "assigned" to a se
  * @bucket_id:		bucket index corresponding to the "assigned" value
+<<<<<<< HEAD
  * @active:		the se is currently refcounted in a rq's bucket
  * @user_defined:	the requested clamp value comes from user-space
+=======
+>>>>>>> f1e2dfdfb89c... UPSTREAM: sched/uclamp: Add CPU's clamp buckets refcounting
  *
  * The bucket_id is the index of the clamp bucket matching the clamp value
  * which is pre-computed and stored to avoid expensive integer divisions from
  * the fast path.
+<<<<<<< HEAD
  *
  * The active bit is set whenever a task has got an "effective" value assigned,
  * which can be different from the clamp value "requested" from user-space.
@@ -1708,12 +1712,17 @@ struct sched_dl_entity {
  * restrictive task-specific value has been requested, thus allowing to
  * implement a "nice" semantic. For example, a task running with a 20%
  * default boost can still drop its own boosting to 0%.
+=======
+>>>>>>> f1e2dfdfb89c... UPSTREAM: sched/uclamp: Add CPU's clamp buckets refcounting
  */
 struct uclamp_se {
 	unsigned int value		: bits_per(SCHED_CAPACITY_SCALE);
 	unsigned int bucket_id		: bits_per(UCLAMP_BUCKETS);
+<<<<<<< HEAD
 	unsigned int active		: 1;
 	unsigned int user_defined	: 1;
+=======
+>>>>>>> f1e2dfdfb89c... UPSTREAM: sched/uclamp: Add CPU's clamp buckets refcounting
 };
 #endif /* CONFIG_UCLAMP_TASK */
 
@@ -1814,6 +1823,7 @@ struct task_struct {
 	struct sched_dl_entity dl;
 
 #ifdef CONFIG_UCLAMP_TASK
+<<<<<<< HEAD
 	/*
 	 * Clamp values requested for a scheduling entity.
 	 * Must be updated with task_rq_lock() held.
@@ -1823,6 +1833,8 @@ struct task_struct {
 	 * Effective clamp values used for a scheduling entity.
 	 * Must be updated with task_rq_lock() held.
 	 */
+=======
+>>>>>>> f1e2dfdfb89c... UPSTREAM: sched/uclamp: Add CPU's clamp buckets refcounting
 	struct uclamp_se		uclamp[UCLAMP_CNT];
 #endif
 
