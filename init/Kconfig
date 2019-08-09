@@ -1567,7 +1567,7 @@ config CPUSET_TOP_APP
 endif
 
 config CPUSET_ASSIST
-	bool "CPUSet configuration helper"
+	bool "Cpuset configuration helper"
 	depends on CPUSETS
 	depends on ANDROID
 	help
