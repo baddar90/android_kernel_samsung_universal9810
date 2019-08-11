@@ -83,7 +83,7 @@ static int thread_group_is_frozen(struct task_struct* task)
 	return (freezing(leader) || frozen(leader));
 }
 
-static void dump_kfreecess_msg(struct kfreecess_msg_data *msg)
+static void __attribute__((unused)) dump_kfreecess_msg(struct kfreecess_msg_data *msg)
 {
 	printk(KERN_ERR "-----kfreecess msg dump-----\n");
 	if (!msg) {
@@ -142,12 +142,11 @@ int mod_sendmsg(int type, int mod, struct priv_data* data)
 		else
 			payload->flag = data->flag;
 	}
-	//dump_kfreecess_msg(payload);
+
 	if ((ret = nlmsg_unicast(kfreecess_mod_sock, skb, payload->dst_portid)) < 0) {
 		pr_err("nlmsg_unicast failed! %s errno %d\n", __func__ , ret);
 		return RET_ERR;
-	} else
-		pr_info("nlmsg_unicast snd msg success\n");
+	}
 
 	return RET_OK;
 }
@@ -294,7 +293,7 @@ static void recv_handler(struct sk_buff *skb)
 		pr_err("freecess--uid: %d, permission denied\n", uid);
 		return;
 	}
-	printk(KERN_ERR "kernel freecess receive msg now\n");
+
 	if (skb->len >= NLMSG_SPACE(0)) {
 		nlh = nlmsg_hdr(skb);
 		msglen = NLMSG_PAYLOAD(nlh, 0);
@@ -319,14 +318,12 @@ static void recv_handler(struct sk_buff *skb)
 			switch (payload->type) {
 			case LOOPBACK_MSG:
 				atomic_set(&bind_port[payload->mod], payload->src_portid);
-				dump_kfreecess_msg(payload);
 				mod_sendmsg(LOOPBACK_MSG, payload->mod, NULL);
 				break;
 			case MSG_TO_KERN:
 				if (mod_recv_handler[payload->mod])
 					mod_recv_handler[payload->mod](payload, sizeof(struct kfreecess_msg_data));
-				else
-					dump_kfreecess_msg(payload);
+
 				break;
 
 			default:
