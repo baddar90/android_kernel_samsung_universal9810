@@ -178,7 +178,13 @@ EXPORT_SYMBOL_GPL(static_key_slow_dec);
 void static_key_slow_dec_deferred(struct static_key_deferred *key)
 {
 	STATIC_KEY_CHECK_USE();
-	__static_key_slow_dec(&key->key, key->timeout, &key->work);
+
+
+	if (static_key_slow_try_dec(key))
+		return;
+
+	queue_delayed_work(system_power_efficient_wq, work, timeout);
+
 }
 EXPORT_SYMBOL_GPL(static_key_slow_dec_deferred);
 
