@@ -6683,10 +6683,7 @@ boosted_task_util(struct task_struct *p)
 
 	trace_sched_boost_task(p, util, margin);
 
-	if (sched_feat(SCHEDTUNE_BOOST_UTIL))
-		return util + margin;
-	else
-		return util;
+	return util + margin;
 #endif
 }
 
