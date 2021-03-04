@@ -1491,6 +1491,15 @@ config SCHED_TUNE
 	  boost value is applied to all (CFS) tasks in the system.
 
 	  If unsure, say N.
+	  
+config UCLAMP_ASSIST
+	bool "Uclamp configuration helper"
+	depends on CPUSETS
+	depends on ANDROID
+	depends on UCLAMP_TASK_GROUP
+	depends on CPUSET_ASSIST
+	help
+	  This option enables in-kernel overrides for uclamp values.
 
 config SCHED_EMS
 	bool "Exynos Mobile Scheduler"
@@ -1504,6 +1513,8 @@ config SCHED_EMS
 	  SCHEDTUNE.
 
           If unsure, say N.
+
+	  If unsure, say N.
 
 config CPUSET_ASSIST
 	bool "Cpuset configuration helper"
