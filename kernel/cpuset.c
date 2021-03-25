@@ -2046,6 +2046,7 @@ static struct cftype files[] = {
 	{ }	/* terminate */
 };
 
+
 #ifdef CONFIG_UCLAMP_ASSIST
 struct ucl_param {
 	char *name;
@@ -2065,30 +2066,36 @@ static void uclamp_set(struct kernfs_open_file *of,
 	const char *cs_name = cs->css.cgroup->kn->name;
 
 	static struct ucl_param tgts[] = {
-		{"top-app",    	     	"10", "100", 1, 1},
-		{"foreground", 	     	"0",  "50",  1, 1},
-		{"background", 	     	"20", "100", 0, 0},
-		{"system-background", 	"0",  "40",  0, 0},
+
+		{"top-app",		"20", "100", 1, 1},
+		{"foreground",		"10",  "50", 1, 1},
+		{"background",		"20", "100", 0, 0},
+		{"system-background",	 "0",  "40", 0, 0},
+		{"camera-deaemon",	"50", "100", 1, 1},
 	};
 
-	for (i = 0; i < ARRAY_SIZE(tgts); i++) {
-		struct ucl_param tgt = tgts[i];
+	if (!strcmp(current->comm, "init")) {
+		for (i = 0; i < ARRAY_SIZE(tgts); i++) {
+			struct ucl_param tgt = tgts[i];
 
-		if (!strncmp(cs_name, tgt.name, strlen(tgt.name))) {
-			cpu_uclamp_min_write_wrapper(of, tgt.uclamp_min,
-				nbytes, off);
-			cpu_uclamp_max_write_wrapper(of, tgt.uclamp_max,
-				nbytes, off);
-			cpu_uclamp_ls_write_u64_wrapper(&cs->css, NULL,
-				tgt.uclamp_latency_sensitive);
-			cpu_uclamp_boost_write_u64_wrapper(&cs->css, NULL,
-				tgt.uclamp_boosted);
+			if (!strcmp(cs_name, tgt.name)) {
+				cpu_uclamp_min_write_wrapper(of, tgt.uclamp_min,
+							nbytes, off);
+				cpu_uclamp_max_write_wrapper(of, tgt.uclamp_max,
+							nbytes, off);
+				cpu_uclamp_ls_write_u64_wrapper(&cs->css, NULL,
+							tgt.uclamp_latency_sensitive);
+				cpu_uclamp_boost_write_u64_wrapper(&cs->css, NULL,
+							tgt.uclamp_boosted);
 
-			break;
+				break;
+			}
+
 		}
 	}
 }
 #endif
+
 
 /*
  *	cpuset_css_alloc - allocate a cpuset css
