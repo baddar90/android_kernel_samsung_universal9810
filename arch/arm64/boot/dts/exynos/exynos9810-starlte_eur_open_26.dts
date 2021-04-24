@@ -9287,7 +9287,7 @@
 		devfreq_type = "aud";
 		devfreq_domain_name = "dvfs_aud";
 		use_delay_time = "false";
-		freq_info = <0x48058 0x48058 0x48058 0x48058 0x120160 0x48058>;
+		freq_info = <295000 295000 295000 295000 800000 295000>;
 		boot_info = <0x28 0x48058>;
 		use_get_dev = "false";
 		polling_ms = <0x0>;
